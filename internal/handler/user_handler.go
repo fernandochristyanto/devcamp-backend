@@ -30,7 +30,7 @@ func (h *Handler) SellerRegistration(w http.ResponseWriter, r *http.Request, par
 	}
 
 	// Insert new user (seller)
-	if sellerRegistrationDTO.UserId == nil {
+	if sellerRegistrationDTO.UserId == nil || *sellerRegistrationDTO.UserId == 0 {
 		insertedUserId := createUser(h.DB, *sellerRegistrationDTO.Email, *sellerRegistrationDTO.Password, "seller", sellerRegistrationDTO.PhoneNumber)
 		sellerRegistrationDTO.UserId = &insertedUserId
 	}
@@ -60,9 +60,9 @@ func (h *Handler) SellerRegistration(w http.ResponseWriter, r *http.Request, par
 
 	internal.RenderJSON(w, []byte(fmt.Sprintf(`
 	{
-		"message": "Success"
-		"userId" : %d
-		"email" : "%s"
+		"message": "Success",
+		"userId" : %d,
+		"email" : "%s",
 		"password" : "%s"
 	}`, *sellerRegistrationDTO.UserId, user.Email, user.Password)), http.StatusOK)
 }
@@ -116,4 +116,42 @@ func getUserByID(db *sql.DB, id int32) model.User {
 
 	return user
 
+}
+
+func (h *Handler) GetProductsByUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	userId := params.ByName("id")
+	query := fmt.Sprintf(`SELECT d.id, d.shop_id, d.catalog_id,
+	d.name, d.price, d.description, d.stock,
+	d.charity, d.curated from 
+	users a join shops b on a.id = b.user_id 
+	join catalogs c on c.shop_id = b.id  
+	join products d on d.catalog_id = c.id 
+	where a.id = %s`, userId)
+
+	rows, err := h.DB.Query(query)
+	if err != nil {
+		log.Println("Error selecting products by user")
+	}
+
+	var products []model.ProductListItem
+	for rows.Next() {
+		var product model.ProductListItem
+		err = rows.Scan(
+			&product.ID,
+			&product.ShopID,
+			&product.CatalogID,
+			&product.Name,
+			&product.Price,
+			&product.Description,
+			&product.Stock,
+			&product.Charity,
+			&product.Curated,
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		products = append(products, product)
+	}
+	bytes, err := json.Marshal(products)
+	internal.RenderJSON(w, bytes, http.StatusOK)
 }

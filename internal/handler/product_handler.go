@@ -101,13 +101,13 @@ func (h *Handler) NewGarageSaleProduct(w http.ResponseWriter, r *http.Request, p
 	}
 
 	var shopId int
-	rows, err := h.DB.Query(fmt.Sprintf("SELECT shop_id from shops WHERE user_id = %d", newProductDTO.UserID))
+	rows, err := h.DB.Query(fmt.Sprintf("SELECT id from shops WHERE user_id = %d", newProductDTO.UserID))
 	if err != nil {
 		log.Println("Error selecting shop_id by user_id")
 	}
 	for rows.Next() {
 		rows.Scan(
-			&shopId
+			&shopId,
 		)
 	}
 

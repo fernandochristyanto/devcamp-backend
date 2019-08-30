@@ -40,6 +40,7 @@ func initRouter(router *httprouter.Router, handler *handler.Handler) {
 
 	// Single user API
 	router.POST("/users/shopregistration", handler.SellerRegistration)
+	router.GET("/users/:id/products", handler.GetProductsByUser)
 
 	router.GET("/products/garagesale", handler.GetGarageSales)
 	router.GET("/products/detail/:id", handler.GetProductDetail)
