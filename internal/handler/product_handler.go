@@ -14,13 +14,15 @@ import (
 )
 
 func (h *Handler) GetGarageSales(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
-	garageSalesQuery := fmt.Sprintf("SELECT id, shop_id, catalog_id, name, price, description, stock, charity, curated, image_url FROM products where catalog_id = 1 ORDER BY curated = true desc")
+	garageSalesQuery := fmt.Sprintf(`SELECT a.id, a.shop_id, a.catalog_id, a.name, a.price, a.description, a.stock, a.charity, a.curated, a.image_url, c.name FROM products a JOIN catalogs b on a.catalog_id = b.id 
+	join shops c on c.id = b.shop_id 
+	where a.catalog_id = 1 ORDER BY curated = true desc`)
 
 	rows, err := h.DB.Query(garageSalesQuery)
 
-	var products []model.Product
+	var products []model.ProductListItem
 	for rows.Next() {
-		var product model.Product
+		var product model.ProductListItem
 		err := rows.Scan(
 			&product.ID,
 			&product.ShopID,
@@ -32,6 +34,7 @@ func (h *Handler) GetGarageSales(w http.ResponseWriter, r *http.Request, param h
 			&product.Charity,
 			&product.Curated,
 			&product.ImageUrl,
+			&product.ShopName,
 		)
 
 		if err != nil {
