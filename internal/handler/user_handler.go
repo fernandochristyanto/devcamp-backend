@@ -4,12 +4,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/fernandochristyanto/devcamp-backend/internal"
-	"github.com/fernandochristyanto/devcamp-backend/model/dto"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/fernandochristyanto/devcamp-backend/model"
+
+	"github.com/fernandochristyanto/devcamp-backend/internal"
+	"github.com/fernandochristyanto/devcamp-backend/model/dto"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (h *Handler) SellerRegistration(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
@@ -53,10 +56,15 @@ func (h *Handler) SellerRegistration(w http.ResponseWriter, r *http.Request, par
 	insertGarageSaleCatalogQuery := fmt.Sprintf("INSERT INTO catalogs(shop_id, name) values(%d, 'Garage Sale')", insertedShopId)
 	_, err = h.DB.Exec(insertGarageSaleCatalogQuery)
 
-	internal.RenderJSON(w, []byte(`
+	user := getUserByID(h.DB, *sellerRegistrationDTO.UserId)
+
+	internal.RenderJSON(w, []byte(fmt.Sprintf(`
 	{
 		"message": "Success"
-	}`), http.StatusOK)
+		"userId" : %d
+		"email" : "%s"
+		"password" : "%s"
+	}`, *sellerRegistrationDTO.UserId, user.Email, user.Password)), http.StatusOK)
 }
 
 func createUser(db *sql.DB, email string, password string, role string, phone string) int32 {
@@ -86,4 +94,26 @@ func createUser(db *sql.DB, email string, password string, role string, phone st
 	}
 
 	return 0
+}
+
+func getUserByID(db *sql.DB, id int32) model.User {
+	query := fmt.Sprintf("Select id,email,password from users where id = %d", id)
+	rows, err := db.Query(query)
+	if err != nil {
+		println("gagal")
+	}
+	defer rows.Close()
+	var user model.User
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.Email, &user.Password)
+
+		if err != nil {
+			println(err)
+			continue
+		}
+
+	}
+
+	return user
+
 }
