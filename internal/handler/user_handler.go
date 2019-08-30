@@ -64,7 +64,7 @@ func createUser(db *sql.DB, email string, password string, role string, phone st
 		email,
 		password,
 		role,
-		phone
+		phone,
 	)
 
 	rows, err := db.Query(query)

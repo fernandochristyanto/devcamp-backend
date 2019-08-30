@@ -10,4 +10,5 @@ type Product struct {
 	Stock       int    `json:"stock"`
 	Charity     bool   `json:"charity"`
 	Curated     bool   `json:"curated"`
+	ImageUrl    string `json:"image_url"`
 }

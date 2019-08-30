@@ -14,7 +14,7 @@ import (
 )
 
 func (h *Handler) GetGarageSales(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
-	garageSalesQuery := fmt.Sprintf("SELECT id, shop_id, catalog_id, name, price, description, stock, charity, curated FROM products where catalog_id = 1 ORDER BY curated = true desc")
+	garageSalesQuery := fmt.Sprintf("SELECT id, shop_id, catalog_id, name, price, description, stock, charity, curated, image_url FROM products where catalog_id = 1 ORDER BY curated = true desc")
 
 	rows, err := h.DB.Query(garageSalesQuery)
 
@@ -31,6 +31,7 @@ func (h *Handler) GetGarageSales(w http.ResponseWriter, r *http.Request, param h
 			&product.Stock,
 			&product.Charity,
 			&product.Curated,
+			&product.ImageUrl,
 		)
 
 		if err != nil {
@@ -50,7 +51,7 @@ func (h *Handler) GetGarageSales(w http.ResponseWriter, r *http.Request, param h
 
 func (h *Handler) GetProductDetail(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
 	shopId := param.ByName("id")
-	selectShopQuery := fmt.Sprintf("SELECT id, shop_id, catalog_id, name, price, description, stock, charity, curated FROM products where id = %s", shopId)
+	selectShopQuery := fmt.Sprintf("SELECT id, shop_id, catalog_id, name, price, description, stock, charity, curated, image_url FROM products where id = %s", shopId)
 
 	rows, err := h.DB.Query(selectShopQuery)
 	if err != nil {
@@ -68,6 +69,7 @@ func (h *Handler) GetProductDetail(w http.ResponseWriter, r *http.Request, param
 			&product.Stock,
 			&product.Charity,
 			&product.Curated,
+			&product.ImageUrl,
 		)
 
 		if err != nil {
@@ -95,7 +97,7 @@ func (h *Handler) NewGarageSaleProduct(w http.ResponseWriter, r *http.Request, p
 	}
 
 	// Insert new user (seller)
-	insertProductQuery := fmt.Sprintf("INSERT INTO products(shop_id, catalog_id, name, price, description, stock, charity) VALUES(%d, %d, '%s', %d,'%s', %d, %s); SELECT max(id) from shops",
+	insertProductQuery := fmt.Sprintf("INSERT INTO products(shop_id, catalog_id, name, price, description, stock, charity, image_url) VALUES(%d, %d, '%s', %d,'%s', %d, %s, '%s'); SELECT max(id) from shops",
 		newProductDTO.ShopID,
 		newProductDTO.CatalogID,
 		newProductDTO.Name,
@@ -103,6 +105,7 @@ func (h *Handler) NewGarageSaleProduct(w http.ResponseWriter, r *http.Request, p
 		newProductDTO.Description,
 		newProductDTO.Stock,
 		strconv.FormatBool(newProductDTO.Charity),
+		"https://cms.dailysocial.id/wp-content/uploads/2018/12/c904852c7bb495039e3d66816913102b_Tokopedia_Mascot.png",
 	)
 
 	_, err = h.DB.Exec(insertProductQuery)
