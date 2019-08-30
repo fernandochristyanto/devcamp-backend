@@ -122,7 +122,7 @@ func (h *Handler) GetProductsByUser(w http.ResponseWriter, r *http.Request, para
 	userId := params.ByName("id")
 	query := fmt.Sprintf(`SELECT d.id, d.shop_id, d.catalog_id,
 	d.name, d.price, d.description, d.stock,
-	d.charity, d.curated from 
+	d.charity, d.curated, d.image_url from 
 	users a join shops b on a.id = b.user_id 
 	join catalogs c on c.shop_id = b.id  
 	join products d on d.catalog_id = c.id 
@@ -146,6 +146,7 @@ func (h *Handler) GetProductsByUser(w http.ResponseWriter, r *http.Request, para
 			&product.Stock,
 			&product.Charity,
 			&product.Curated,
+			&product.ImageUrl,
 		)
 		if err != nil {
 			log.Println(err)
