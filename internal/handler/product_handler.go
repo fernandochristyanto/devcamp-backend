@@ -96,7 +96,7 @@ func (h *Handler) NewGarageSaleProduct(w http.ResponseWriter, r *http.Request, p
 	var newProductDTO dto.GarageSaleProductInsertDTO
 	err = json.Unmarshal(body, &newProductDTO)
 	if err != nil {
-		internal.RenderJSON(w, []byte(`"message": "failed parsing product"`), http.StatusBadRequest)
+		internal.RenderJSON(w, []byte(`{"message": "failed parsing product"}`), http.StatusBadRequest)
 	}
 
 	// Insert new user (seller)
@@ -114,8 +114,8 @@ func (h *Handler) NewGarageSaleProduct(w http.ResponseWriter, r *http.Request, p
 	_, err = h.DB.Exec(insertProductQuery)
 	if err != nil {
 		log.Println(err)
-		internal.RenderJSON(w, []byte(`"message": "failed insert product"`), http.StatusBadRequest)
+		internal.RenderJSON(w, []byte(`{"message": "failed insert product"}`), http.StatusBadRequest)
 	}
 
-	internal.RenderJSON(w, []byte(`"message": "Success"`), http.StatusOK)
+	internal.RenderJSON(w, []byte(`{"message": "Success"}`), http.StatusOK)
 }
