@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func renderJSON(w http.ResponseWriter, data []byte, status int) {
+func RenderJSON(w http.ResponseWriter, data []byte, status int) {
 
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")

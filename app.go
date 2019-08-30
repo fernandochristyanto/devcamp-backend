@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/fernandochristyanto/devcamp-backend/internal"
-	// kCache "github.com/koding/cache"
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/fernandochristyanto/devcamp-backend/internal"
+	"github.com/fernandochristyanto/devcamp-backend/internal/handler"
 	"log"
 	"net/http"
 
@@ -22,7 +22,7 @@ func initFlags(args *internal.Args) {
 	args.Port = *port
 }
 
-func initHandler(handler *internal.Handler) error {
+func initHandler(handler *handler.Handler) error {
 
 	// Initialize SQL DB
 	db, err := sql.Open("postgres", "postgres://devcamp:devcamp@157.230.245.59:5432/?sslmode=disable")
@@ -34,12 +34,16 @@ func initHandler(handler *internal.Handler) error {
 	return nil
 }
 
-func initRouter(router *httprouter.Router, handler *internal.Handler) {
+func initRouter(router *httprouter.Router, handler *handler.Handler) {
 
 	router.GET("/", handler.Index)
 
 	// Single user API
-	router.POST("/users", handler.GetUserByEmailAndPassword)
+	router.POST("/users/shopregistration", handler.SellerRegistration)
+
+	router.GET("/products/garagesale", handler.GetGarageSales)
+	router.GET("/products/detail/:id", handler.GetProductDetail)
+	router.POST("/products/garagesale", handler.NewGarageSaleProduct)
 
 	// `httprouter` library uses `ServeHTTP` method for it's 404 pages
 	router.NotFound = handler
@@ -49,7 +53,7 @@ func main() {
 	args := new(internal.Args)
 	initFlags(args)
 
-	handler := new(internal.Handler)
+	handler := new(handler.Handler)
 	if err := initHandler(handler); err != nil {
 		panic(err)
 	}
