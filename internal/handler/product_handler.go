@@ -3,14 +3,15 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	internal "github.com/fernandochristyanto/devcamp-backend/internal"
-	"github.com/fernandochristyanto/devcamp-backend/model"
-	"github.com/fernandochristyanto/devcamp-backend/model/dto"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
+
+	internal "github.com/fernandochristyanto/devcamp-backend/internal"
+	"github.com/fernandochristyanto/devcamp-backend/model"
+	"github.com/fernandochristyanto/devcamp-backend/model/dto"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (h *Handler) GetGarageSales(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
@@ -99,10 +100,21 @@ func (h *Handler) NewGarageSaleProduct(w http.ResponseWriter, r *http.Request, p
 		internal.RenderJSON(w, []byte(`{"message": "failed parsing product"}`), http.StatusBadRequest)
 	}
 
+	var shopId int
+	rows, err := h.DB.Query(fmt.Sprintf("SELECT shop_id from shops WHERE user_id = %d", newProductDTO.UserID))
+	if err != nil {
+		log.Println("Error selecting shop_id by user_id")
+	}
+	for rows.Next() {
+		rows.Scan(
+			&shopId
+		)
+	}
+
 	// Insert new user (seller)
 	insertProductQuery := fmt.Sprintf("INSERT INTO products(shop_id, catalog_id, name, price, description, stock, charity, image_url) VALUES(%d, %d, '%s', %d,'%s', %d, %s, '%s'); SELECT max(id) from shops",
-		newProductDTO.ShopID,
-		newProductDTO.CatalogID,
+		shopId,
+		1,
 		newProductDTO.Name,
 		newProductDTO.Price,
 		newProductDTO.Description,
