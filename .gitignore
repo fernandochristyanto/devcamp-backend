@@ -1,0 +1,11 @@
+# app binary
+devcamp-backend
+app
+
+# dependencies
+vendor/
+
+# auto-generated stuff
+.vscode/
+
+docker-volumes
